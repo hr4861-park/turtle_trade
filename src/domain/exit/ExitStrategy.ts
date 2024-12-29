@@ -20,6 +20,8 @@ export abstract class ExitStrategy {
   async run(currentPrice: number, signal: TurtleSignal) {
     if (this.getSignal(currentPrice, signal)) {
       await this.binance.closePosition(this.ticker, this.getDirection(), this.amount)
+      return true
     }
+    return false
   }
 }

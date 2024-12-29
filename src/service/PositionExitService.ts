@@ -29,8 +29,9 @@ export class PositionExitService {
       if (!strategy) {
         continue
       }
-      await strategy.run(price, signal)
-      await this.telegram.sendInfoMessage(`Exist position: ${JSON.stringify(position)}`)
+      if (await strategy.run(price, signal)) {
+        await this.telegram.sendInfoMessage(`Exist position: ${JSON.stringify(position)}`)
+      }
     }
   }
 }
