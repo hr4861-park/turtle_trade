@@ -1,0 +1,17 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model pyramid {
+  ticker      String  @id
+  direction   String
+  unitSize    Decimal
+  count       Int
+  atr         Decimal
+  targetPrice Decimal
+}
