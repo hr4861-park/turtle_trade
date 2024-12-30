@@ -7,8 +7,9 @@ import {TelegramHandler} from "./external/telegram/Telegram";
 
 
 const entranceService = container.resolve(PositionEntranceService)
-const existService = container.resolve(PositionExitService)
+const exitService = container.resolve(PositionExitService)
 const telegram = container.resolve(TelegramHandler)
+
 
 const entranceWork = async () => {
   await entranceService.run()
@@ -16,11 +17,17 @@ const entranceWork = async () => {
 }
 
 const existWork = async () => {
-  await existService.run()
+  await exitService.run()
   setTimeout(existWork, 100)
 }
 
-existWork()
-entranceWork()
+// existWork()
+// entranceWork()
 
 telegram.sendInfoMessage('Start App')
+.then(() => {
+  telegram.registerCommand(/\/close (.+)/, async (msg, match) => {
+    if (!match) return;
+    await exitService.forceClose(match[1])
+  })
+})

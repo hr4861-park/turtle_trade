@@ -34,4 +34,15 @@ export class PositionExitService {
       }
     }
   }
+
+  async forceClose(ticker: string) {
+    const positions = await this.positionReader.getPositions()
+    const position = positions[ticker]
+    if (!position) {
+      return
+    }
+    const price = this.priceReader.readPrice(ticker)
+    this.exitStrategyFactory.createStrategy(positions[ticker])?.forceClose(price)
+    await this.telegram.sendInfoMessage(`Exist position: ${JSON.stringify(position)}`)
+  }
 }

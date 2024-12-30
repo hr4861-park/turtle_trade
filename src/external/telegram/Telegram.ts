@@ -20,4 +20,8 @@ export class TelegramHandler {
   sendWarningMessage = async (msg: string) => {
     await this.bot.sendMessage(this.myToken, `⚠️ ${msg}`)
   }
+
+  registerCommand(regExp: RegExp, cmd: (msg: TelegramBot.Message, match: (RegExpExecArray | null)) => void) {
+    this.bot.onText(regExp, cmd)
+  }
 }

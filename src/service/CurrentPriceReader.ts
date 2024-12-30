@@ -11,6 +11,8 @@ export class CurrentPriceReader {
       this.prices = await this.binance.fetchPrices()
       setTimeout(refresh, 1000)
     }
+
+    refresh()
   }
 
   readPrices() {

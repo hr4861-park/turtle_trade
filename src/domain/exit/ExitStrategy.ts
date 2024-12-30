@@ -22,4 +22,10 @@ export abstract class ExitStrategy {
     }
     return false
   }
+
+  async forceClose(currentPrice: number) {
+    await this.binance.closePosition(this.ticker, this.getDirection(), this.amount)
+    await this.afterClose(currentPrice)
+  }
+
 }
