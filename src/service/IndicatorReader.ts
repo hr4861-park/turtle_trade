@@ -12,12 +12,18 @@ export class IndicatorReader {
 
   constructor(private readonly calculator: IndicatorCalculator,
               private readonly communicator: BinanceCommunicator,
+              private readonly binance: BinanceCommunicator,
               telegram: TelegramHandler) {
     node_cron.schedule("0 9 * * *", () => {
-      this.cache.clear()
-      telegram.sendInfoMessage("Turtle Signal cache is cleared by Timer.")
-      .catch(reason => console.error(reason))
+      this.initialize()
+      .then(() => telegram.sendInfoMessage("Turtle Signal cache is cleared by Timer.")
+      .catch(reason => console.error(reason)))
     })
+  }
+
+  async initialize() {
+    const tickers = await this.binance.fetchTickers()
+    await Promise.all(tickers.map(ticker => this.readTurtleSignal(ticker)))
   }
 
   async readTurtleSignal(ticker: string) {

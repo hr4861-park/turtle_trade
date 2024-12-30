@@ -4,12 +4,13 @@ import {container} from "tsyringe";
 import {PositionEntranceService} from "./service/PositionEntranceService";
 import {PositionExitService} from "./service/PositionExitService";
 import {TelegramHandler} from "./external/telegram/Telegram";
-
+import {IndicatorReader} from "./service/IndicatorReader";
 
 
 const entranceService = container.resolve(PositionEntranceService)
 const exitService = container.resolve(PositionExitService)
 const telegram = container.resolve(TelegramHandler)
+const indicator = container.resolve(IndicatorReader)
 
 const entranceWork = async () => {
   await entranceService.run()
@@ -21,13 +22,18 @@ const existWork = async () => {
   setTimeout(existWork, 100)
 }
 
-existWork()
-entranceWork()
+const main = () => {
+  indicator.initialize()
+  .then(existWork)
+  .then(entranceWork)
+  .then(() => telegram.sendInfoMessage('Start App'))
+  .then(() => telegram.registerCommand(/\/close (.+)/, async (msg, match) => {
+        if (!match) return;
+        await exitService.forceClose(match[1])
+      })
+  )
+}
 
-telegram.sendInfoMessage('Start App')
-.then(() => {
-  telegram.registerCommand(/\/close (.+)/, async (msg, match) => {
-    if (!match) return;
-    await exitService.forceClose(match[1])
-  })
-})
+
+console.log("start main")
+main()
