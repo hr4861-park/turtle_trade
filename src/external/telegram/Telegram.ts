@@ -4,7 +4,15 @@ import {singleton} from "tsyringe";
 @singleton()
 export class TelegramHandler {
 
-  private readonly bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN as string, {polling: true});
+  private readonly bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN as string, {
+    polling: true, request: {
+      url: "https://api.telegram.org",
+      agentOptions: {
+        keepAlive: true,
+        family: 4
+      }
+    }
+  });
   private readonly myToken = '1148141159'
 
   sendErrorMessage = async (msg: string) => {
