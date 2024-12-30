@@ -2,12 +2,12 @@ import {Direction} from "../constants/Direction";
 import {ExitStrategy} from "./ExitStrategy";
 import {BinanceCommunicator} from "../../external/http/BinanceCommunicator";
 import {TurtleSignal} from "../TurtleSignal";
-import {PyramidRepository} from "../../external/db/PyramidRepository";
+import {LastTradeRepository} from "../../external/db/LastTradeRepository";
 
 export class ShortExitStrategy extends ExitStrategy {
-  async clearPyramid(currentPrice: number, entryPrice: number, pyramidRepository: PyramidRepository) {
-    if (currentPrice < entryPrice) {
-      await pyramidRepository.delete(this.ticker)
+  protected async afterClose(currentPrice: number): Promise<void> {
+    if (currentPrice < this.entryPrice) {
+      await this.repository.create(this.ticker, Direction.SHORT)
     }
   }
 
@@ -15,7 +15,11 @@ export class ShortExitStrategy extends ExitStrategy {
     return currentPrice > signal.high10
   }
 
-  constructor(binance: BinanceCommunicator, ticker: string, amount: number) {
+  constructor(binance: BinanceCommunicator,
+              private readonly repository: LastTradeRepository,
+              ticker: string,
+              amount: number,
+              private readonly entryPrice: number) {
     super(binance, ticker, amount);
   }
 

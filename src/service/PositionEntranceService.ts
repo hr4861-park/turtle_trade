@@ -1,36 +1,19 @@
 import {injectable} from "tsyringe";
 import {BinanceCommunicator} from "../external/http/BinanceCommunicator";
 import {IndicatorReader} from "./IndicatorReader";
-import {PyramidRepository} from "../external/db/PyramidRepository";
 import {EntranceStrategyFactory} from "./EntranceStrategyFactory";
 import {TelegramHandler} from "../external/telegram/Telegram";
+import {LastTradeRepository} from "../external/db/LastTradeRepository";
 
 @injectable()
 export class PositionEntranceService {
 
   constructor(private readonly binance: BinanceCommunicator,
               private readonly indicator: IndicatorReader,
-              private readonly pyramidRepository: PyramidRepository,
               private readonly entranceStrategyRepository: EntranceStrategyFactory,
-              private readonly telegram: TelegramHandler) {
+              private readonly telegram: TelegramHandler,
+              private readonly lastTradeRepository: LastTradeRepository) {
   }
-
-//   const position = positions[ticker]
-//   const signal = await this.indicators.readTurtleSignal(ticker)
-//   if (!signal) {
-//   return
-// }
-// const price = prices[ticker]
-// if (position) {
-//   await position.checkExitSignal(price, signal, this.communicator)
-//   return
-// }
-// const strategy = this.entranceFactory.create(ticker, price, signal)
-// if (!strategy) {
-//   return
-// }
-// const trade = await strategy.run(price, this.communicator, this.indicators, this.telegram)
-// await this.pyramidRepository.create(trade)
 
   async run() {
     const tickers = await this.binance.fetchTickers()
@@ -40,7 +23,6 @@ export class PositionEntranceService {
       const signal = await this.indicator.readTurtleSignal(ticker)
       const position = positions[ticker]
       const price = prices[ticker]
-      // const pyramid = await this.pyramidRepository.select(ticker)
       if (!signal || position) {
         continue;
       }
@@ -48,8 +30,7 @@ export class PositionEntranceService {
       if (!strategy) {
         continue;
       }
-      const trade = await strategy.run(price, this.binance, this.indicator, this.telegram)
-      // await this.pyramidRepository.create(trade)
+      await strategy.run(price, this.binance, this.indicator, this.telegram, this.lastTradeRepository)
     }
   }
 }
