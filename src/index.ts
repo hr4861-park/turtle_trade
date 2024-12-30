@@ -34,7 +34,7 @@ const main = () => {
   .then(() => telegram.registerCommand(/\/turtle (.+)/, async (msg, match) => {
     if (!match) return;
     const result = await indicator.readTurtleSignal(match[1])
-    if (!result) {
+    if (result) {
       await telegram.sendInfoMessage(`Current ${match[1]}'s turtle Signal: ${JSON.stringify(result)}`)
     }
   }))
