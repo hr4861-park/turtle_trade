@@ -34,4 +34,10 @@ export class PositionExitService {
       }
     }
   }
+
+  async forceClose(ticker: string) {
+    const positions = await this.positionReader.getPositions()
+    const price = this.priceReader.readPrice(ticker)
+    this.exitStrategyFactory.createStrategy(positions[ticker])?.forceClose(price)
+  }
 }
