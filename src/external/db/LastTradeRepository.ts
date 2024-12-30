@@ -35,7 +35,7 @@ export class LastTradeRepository {
   }
 
   delete(ticker: string) {
-    return this.client.lastTrade.delete({
+    return this.client.lastTrade.deleteMany({
       where: {
         ticker
       }
