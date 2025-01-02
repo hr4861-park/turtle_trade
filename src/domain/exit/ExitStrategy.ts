@@ -19,6 +19,7 @@ export abstract class ExitStrategy {
     if (this.getSignal(currentPrice, signal)) {
       await this.binance.closePosition(this.ticker, this.getDirection(), this.amount)
       await this.afterClose(currentPrice)
+      return true
     }
     return false
   }
