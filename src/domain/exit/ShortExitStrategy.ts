@@ -12,7 +12,7 @@ export class ShortExitStrategy extends ExitStrategy {
   }
 
   protected getSignal(currentPrice: number, signal: TurtleSignal): boolean {
-    return currentPrice > signal.high10
+    return currentPrice > signal.high10 || signal.value_change > 0
   }
 
   constructor(binance: BinanceCommunicator,
