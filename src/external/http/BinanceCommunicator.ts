@@ -63,7 +63,7 @@ export class BinanceCommunicator {
   closePosition = async (ticker: string, direction: Direction, amount: number): Promise<void> => {
     await this.communicator.createOrder(ticker, 'market', direction === Direction.LONG ? 'sell' : 'buy', Math.abs(amount))
     const orders = await this.communicator.fetchOpenOrders(ticker)
-    await this.communicator.cancelOrders(orders.map(order => order.id))
+    await this.communicator.cancelOrders(orders.map(order => order.id), ticker)
   }
 
   enterPosition = async (ticker: string, position: Direction, amount: number): Promise<void> => {
