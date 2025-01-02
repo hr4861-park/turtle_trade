@@ -8,9 +8,9 @@ import {ShortEntranceStrategy} from "../domain/entrance/ShortEntranceStrategy";
 export class EntranceStrategyFactory {
 
   create(ticker: string, price: number, turtleSignal: TurtleSignal): EntranceStrategy | undefined {
-    if (price > turtleSignal.high20) {
+    if (price > turtleSignal.high20 && turtleSignal.value_change > 0) {
       return new LongEntranceStrategy(ticker, turtleSignal)
-    } else if (price < turtleSignal.low20) {
+    } else if (price < turtleSignal.low20 && turtleSignal.value_change < 0) {
       return new ShortEntranceStrategy(ticker, turtleSignal)
     }
     return undefined
