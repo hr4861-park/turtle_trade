@@ -38,7 +38,7 @@ export class IndicatorReader {
       this.cache.set(ticker, signal)
       return signal
     } catch (e) {
-      console.error(`Raise Error on turtleSignal: ${ticker}`)
+      console.error(`Raise Error on turtleSignal: ${ticker}`, e)
       this.cache.set(ticker, null)
       return null
     }
