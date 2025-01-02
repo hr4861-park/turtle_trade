@@ -49,7 +49,7 @@ export abstract class EntranceStrategy {
     } else {
       await communicator.setLeverage(this.ticker, leverage)
       try {
-        await communicator.enterPosition(this.ticker, direction, amount)
+        await communicator.enterPosition(this.ticker, direction, amount, price, stopLoss)
         await communicator.setStopLoss(this.ticker, direction, amount, stopLoss)
         await lastTradeRepository.delete(this.ticker)
         await telegram.sendInfoMessage(`Success enter position: ${JSON.stringify(tradeInfo)}`)
