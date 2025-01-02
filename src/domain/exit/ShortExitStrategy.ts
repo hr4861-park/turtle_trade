@@ -5,8 +5,8 @@ import {TurtleSignal} from "../TurtleSignal";
 import {LastTradeRepository} from "../../external/db/LastTradeRepository";
 
 export class ShortExitStrategy extends ExitStrategy {
-  protected async afterClose(currentPrice: number): Promise<void> {
-    if (currentPrice < this.entryPrice) {
+  protected async afterClose(currentPrice: number, isForced: boolean): Promise<void> {
+    if (currentPrice < this.entryPrice || isForced) {
       await this.repository.create(this.ticker, Direction.SHORT)
     }
   }
