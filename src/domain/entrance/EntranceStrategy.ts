@@ -24,7 +24,7 @@ export abstract class EntranceStrategy {
     const {atr, stopLoss, leverage, direction} = await this.getDetails(price, indicators)
     const lastTradeDirection = await lastTradeRepository.select(this.ticker)
 
-    const amount = (wallet.total * 0.05 / price) * leverage
+    const amount = (wallet.total * 0.1 / price) * leverage
     const tradeInfo: Trade = {
       ticker: this.ticker,
       direction: direction,
