@@ -16,6 +16,7 @@ export class IndicatorCalculator {
 
     const response = await this.lambdaClient.send(command)
     if (!response.Payload) {
+      console.error(response.FunctionError)
       throw new Error("Raised Error on Calculate Turtle signal")
     }
     const result = Buffer.from(response.Payload).toString().replace(/^"|"$/g, "").replace(/\\/g, "");
