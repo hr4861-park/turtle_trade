@@ -3,7 +3,7 @@ import {BinanceCommunicator} from "../external/http/BinanceCommunicator";
 import {IndicatorReader} from "./IndicatorReader";
 import {EntranceStrategyFactory} from "./EntranceStrategyFactory";
 import {TelegramHandler} from "../external/telegram/Telegram";
-import {LastTradeRepository} from "../external/db/LastTradeRepository";
+// import {LastTradeRepository} from "../external/db/LastTradeRepository";
 
 @injectable()
 export class PositionEntranceService {
@@ -12,7 +12,8 @@ export class PositionEntranceService {
               private readonly indicator: IndicatorReader,
               private readonly entranceStrategyRepository: EntranceStrategyFactory,
               private readonly telegram: TelegramHandler,
-              private readonly lastTradeRepository: LastTradeRepository) {
+              // private readonly lastTradeRepository: LastTradeRepository
+  ) {
   }
 
   async run() {
@@ -30,7 +31,7 @@ export class PositionEntranceService {
       if (!strategy) {
         continue;
       }
-      await strategy.run(price, this.binance, this.indicator, this.telegram, this.lastTradeRepository)
+      await strategy.run(price, this.binance, this.indicator, this.telegram)
     }
   }
 }

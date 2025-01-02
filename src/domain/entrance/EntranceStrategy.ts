@@ -4,7 +4,6 @@ import {IndicatorReader} from "../../service/IndicatorReader";
 import {TelegramHandler} from "../../external/telegram/Telegram";
 import {Direction} from "../constants/Direction";
 import {Trade} from "../Trade";
-import {LastTradeRepository} from "../../external/db/LastTradeRepository";
 
 export abstract class EntranceStrategy {
 
@@ -19,10 +18,10 @@ export abstract class EntranceStrategy {
     direction: Direction
   }>
 
-  async run(price: number, communicator: BinanceCommunicator, indicators: IndicatorReader, telegram: TelegramHandler, lastTradeRepository: LastTradeRepository) {
+  async run(price: number, communicator: BinanceCommunicator, indicators: IndicatorReader, telegram: TelegramHandler) {
     const wallet = await communicator.fetchUSDTWallet()
     const {atr, stopLoss, leverage, direction} = await this.getDetails(price, indicators)
-    const lastTradeDirection = await lastTradeRepository.select(this.ticker)
+    // const lastTradeDirection = await lastTradeRepository.select(this.ticker)
 
     const amount = (wallet.total * 0.1 / price) * leverage
     const tradeInfo: Trade = {
@@ -34,16 +33,6 @@ export abstract class EntranceStrategy {
       amount: amount
     }
 
-    if (lastTradeDirection && lastTradeDirection.direction === this.getDirection()) {
-      if (!lastTradeDirection.notified) {
-        await telegram.sendWarningMessage(`No enter position: ${JSON.stringify({
-          ...tradeInfo,
-          cause: "Last trade was profitable."
-        })}`)
-        await lastTradeRepository.notified(this.ticker)
-      }
-      return;
-    }
     if (wallet.total * 0.05 > wallet.free) {
       await telegram.sendWarningMessage(`No enter position: ${JSON.stringify({...tradeInfo, cause: "No free USD."})}`)
     } else {
@@ -51,7 +40,7 @@ export abstract class EntranceStrategy {
       try {
         await communicator.enterPosition(this.ticker, direction, amount)
         await communicator.setStopLoss(this.ticker, direction, amount, stopLoss)
-        await lastTradeRepository.delete(this.ticker)
+        // await lastTradeRepository.delete(this.ticker)
         await telegram.sendInfoMessage(`Success enter position: ${JSON.stringify(tradeInfo)}`)
       } catch (e) {
         console.error(e)

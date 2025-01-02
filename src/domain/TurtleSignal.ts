@@ -9,5 +9,6 @@ export interface TurtleSignal extends Omit<Candle, 'dateTime'> {
   low10: number,
   low20: number,
   value: number,
-  value_change: number
+  value_change: number,
+  trend: number
 }

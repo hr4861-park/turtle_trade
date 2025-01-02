@@ -13,12 +13,12 @@ export abstract class ExitStrategy {
 
   protected abstract getSignal(currentPrice: number, signal: TurtleSignal): boolean
 
-  protected abstract afterClose(currentPrice: number, isForced: boolean): Promise<void>
+  // protected abstract afterClose(currentPrice: number, isForced: boolean): Promise<void>
 
   async run(currentPrice: number, signal: TurtleSignal) {
     if (this.getSignal(currentPrice, signal)) {
       await this.binance.closePosition(this.ticker, this.getDirection(), this.amount)
-      await this.afterClose(currentPrice, true)
+      // await this.afterClose(currentPrice, true)
       return true
     }
     return false
@@ -26,7 +26,7 @@ export abstract class ExitStrategy {
 
   async forceClose(currentPrice: number) {
     await this.binance.closePosition(this.ticker, this.getDirection(), this.amount)
-    await this.afterClose(currentPrice, true)
+    // await this.afterClose(currentPrice, true)
   }
 
 }
