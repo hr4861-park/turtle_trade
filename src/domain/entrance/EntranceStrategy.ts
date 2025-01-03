@@ -35,6 +35,7 @@ export abstract class EntranceStrategy {
 
     if (wallet.total * 0.05 > wallet.free) {
       await telegram.sendWarningMessage(`No enter position: ${JSON.stringify({...tradeInfo, cause: "No free USD."})}`)
+      indicators.deleteTurtleSignal(this.ticker)
     } else {
       await communicator.setLeverage(this.ticker, leverage)
       try {
