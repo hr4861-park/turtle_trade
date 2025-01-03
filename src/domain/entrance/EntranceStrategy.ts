@@ -30,6 +30,7 @@ export abstract class EntranceStrategy {
       entryPosition: price,
       atr: atr,
       stopLoss: stopLoss,
+      leverage: leverage,
       amount: amount
     }
 

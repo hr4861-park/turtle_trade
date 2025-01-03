@@ -6,5 +6,6 @@ export interface Trade {
   entryPosition: number,
   atr: number,
   stopLoss: number,
+  leverage: number
   amount: number
 }
