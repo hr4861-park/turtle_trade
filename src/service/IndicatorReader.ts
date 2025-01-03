@@ -45,7 +45,7 @@ export class IndicatorReader {
   }
 
   deleteTurtleSignal(ticker: string) {
-    this.cache.delete(ticker)
+    this.cache.set(ticker, null)
   }
 
   async readAtr(ticker: string) {
