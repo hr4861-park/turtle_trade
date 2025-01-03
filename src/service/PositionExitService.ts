@@ -42,6 +42,7 @@ export class PositionExitService {
       return
     }
     const price = this.priceReader.readPrice(ticker)
+    this.indicatorReader.deleteTurtleSignal(ticker)
     this.exitStrategyFactory.createStrategy(positions[ticker])?.forceClose(price)
     await this.telegram.sendInfoMessage(`Exist position: ${JSON.stringify(position)}`)
   }
