@@ -23,7 +23,7 @@ export abstract class EntranceStrategy {
     const {atr, stopLoss, leverage, direction} = await this.getDetails(price, indicators)
     // const lastTradeDirection = await lastTradeRepository.select(this.ticker)
 
-    const amount = (wallet.total * 0.1 / price) * leverage
+    const amount = (wallet.total * 0.01 / price) * leverage
     const tradeInfo: Trade = {
       ticker: this.ticker,
       direction: direction,
@@ -34,7 +34,7 @@ export abstract class EntranceStrategy {
       amount: amount
     }
 
-    if (wallet.total * 0.05 > wallet.free) {
+    if (wallet.total * 0.01 > wallet.free) {
       await telegram.sendWarningMessage(`No enter position: ${JSON.stringify({...tradeInfo, cause: "No free USD."})}`)
       indicators.deleteTurtleSignal(this.ticker)
     } else {
