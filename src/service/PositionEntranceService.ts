@@ -4,6 +4,7 @@ import {IndicatorReader} from "../domain/IndicatorReader";
 import {EntranceStrategyFactory} from "../domain/entrance/EntranceStrategyFactory";
 import {TelegramHandler} from "../external/telegram/Telegram";
 import {LastTradeRepository} from "../external/db/LastTradeRepository";
+import {Direction} from "../domain/constants/Direction";
 
 @injectable()
 export class PositionEntranceService {
@@ -36,7 +37,8 @@ export class PositionEntranceService {
         continue;
       }
       const trade = await strategy.run(price, this.binance, this.indicator, this.telegram)
-      await this.lastTradeRepository.upsert(trade.ticker, trade.direction, trade.atr, trade.amount, trade.entryPosition + trade.atr)
+      const bit = trade.direction === Direction.LONG ? 1 : 0
+      await this.lastTradeRepository.upsert(trade.ticker, trade.direction, trade.atr, trade.amount, trade.entryPosition + trade.atr * bit)
     }
   }
 }
