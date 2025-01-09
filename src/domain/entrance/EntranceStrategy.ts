@@ -1,6 +1,6 @@
 import {TurtleSignal} from "../TurtleSignal";
 import {BinanceCommunicator} from "../../external/http/BinanceCommunicator";
-import {IndicatorReader} from "../../service/IndicatorReader";
+import {IndicatorReader} from "../IndicatorReader";
 import {TelegramHandler} from "../../external/telegram/Telegram";
 import {Direction} from "../constants/Direction";
 import {Trade} from "../Trade";
@@ -21,7 +21,6 @@ export abstract class EntranceStrategy {
   async run(price: number, communicator: BinanceCommunicator, indicators: IndicatorReader, telegram: TelegramHandler) {
     const wallet = await communicator.fetchUSDTWallet()
     const {atr, stopLoss, leverage, direction} = await this.getDetails(price, indicators)
-    // const lastTradeDirection = await lastTradeRepository.select(this.ticker)
 
     const amount = (wallet.total * 0.01 / price) * leverage
     const tradeInfo: Trade = {
@@ -42,7 +41,6 @@ export abstract class EntranceStrategy {
       try {
         await communicator.enterPosition(this.ticker, direction, amount)
         await communicator.setStopLoss(this.ticker, direction, amount, stopLoss)
-        // await lastTradeRepository.delete(this.ticker)
         await telegram.sendInfoMessage(`Success enter position: ${JSON.stringify(tradeInfo)}`)
       } catch (e) {
         console.error(e)

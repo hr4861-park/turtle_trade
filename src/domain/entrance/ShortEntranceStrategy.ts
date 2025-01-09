@@ -1,6 +1,6 @@
 import {EntranceStrategy} from "./EntranceStrategy";
 import {TurtleSignal} from "../TurtleSignal";
-import {IndicatorReader} from "../../service/IndicatorReader";
+import {IndicatorReader} from "../IndicatorReader";
 import {Direction} from "../constants/Direction";
 
 export class ShortEntranceStrategy extends EntranceStrategy {

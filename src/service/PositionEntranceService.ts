@@ -1,18 +1,18 @@
 import {injectable} from "tsyringe";
 import {BinanceCommunicator} from "../external/http/BinanceCommunicator";
-import {IndicatorReader} from "./IndicatorReader";
-import {EntranceStrategyFactory} from "./EntranceStrategyFactory";
+import {IndicatorReader} from "../domain/IndicatorReader";
+import {EntranceStrategyFactory} from "../domain/entrance/EntranceStrategyFactory";
 import {TelegramHandler} from "../external/telegram/Telegram";
-// import {LastTradeRepository} from "../external/db/LastTradeRepository";
+import {LastTradeRepository} from "../external/db/LastTradeRepository";
 
 @injectable()
 export class PositionEntranceService {
 
   constructor(private readonly binance: BinanceCommunicator,
               private readonly indicator: IndicatorReader,
-              private readonly entranceStrategyRepository: EntranceStrategyFactory,
+              private readonly entranceStrategyFactory: EntranceStrategyFactory,
               private readonly telegram: TelegramHandler,
-              // private readonly lastTradeRepository: LastTradeRepository
+              private readonly lastTradeRepository: LastTradeRepository
   ) {
   }
 
@@ -27,11 +27,16 @@ export class PositionEntranceService {
       if (!signal || position) {
         continue;
       }
-      const strategy = this.entranceStrategyRepository.create(ticker, price, signal)
+      const strategy = this.entranceStrategyFactory.create(ticker, price, signal)
       if (!strategy) {
         continue;
       }
-      await strategy.run(price, this.binance, this.indicator, this.telegram)
+      const lastTrade = await this.lastTradeRepository.select(ticker)
+      if (lastTrade && lastTrade.direction === strategy.getDirection()) {
+        continue;
+      }
+      const trade = await strategy.run(price, this.binance, this.indicator, this.telegram)
+      await this.lastTradeRepository.upsert(trade.ticker, trade.direction, trade.atr, trade.amount, trade.entryPosition + trade.atr)
     }
   }
 }

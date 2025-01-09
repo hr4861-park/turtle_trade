@@ -4,7 +4,7 @@ import {container} from "tsyringe";
 import {PositionEntranceService} from "./service/PositionEntranceService";
 import {PositionExitService} from "./service/PositionExitService";
 import {TelegramHandler} from "./external/telegram/Telegram";
-import {IndicatorReader} from "./service/IndicatorReader";
+import {IndicatorReader} from "./domain/IndicatorReader";
 
 
 const entranceService = container.resolve(PositionEntranceService)

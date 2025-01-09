@@ -1,8 +1,8 @@
 import {singleton} from "tsyringe";
-import {TurtleSignal} from "../domain/TurtleSignal";
-import {EntranceStrategy} from "../domain/entrance/EntranceStrategy";
-import {LongEntranceStrategy} from "../domain/entrance/LongEntranceStrategy";
-import {ShortEntranceStrategy} from "../domain/entrance/ShortEntranceStrategy";
+import {TurtleSignal} from "../TurtleSignal";
+import {EntranceStrategy} from "./EntranceStrategy";
+import {LongEntranceStrategy} from "./LongEntranceStrategy";
+import {ShortEntranceStrategy} from "./ShortEntranceStrategy";
 
 @singleton()
 export class EntranceStrategyFactory {

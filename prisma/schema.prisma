@@ -17,7 +17,10 @@ model pyramid {
 }
 
 model lastTrade {
-  ticker    String  @id
-  direction String
-  notified  Boolean
+  ticker      String  @id
+  direction   String
+  atr         Decimal
+  size        Decimal
+  targetPrice Decimal
+  notified    Boolean
 }

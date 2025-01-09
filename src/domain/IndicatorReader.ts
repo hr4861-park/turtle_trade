@@ -1,7 +1,7 @@
 import {singleton} from "tsyringe";
 import {IndicatorCalculator} from "../external/aws/IndicatorCalculator";
 import {BinanceCommunicator} from "../external/http/BinanceCommunicator";
-import {TurtleSignal} from "../domain/TurtleSignal";
+import {TurtleSignal} from "./TurtleSignal";
 import node_cron from "node-cron";
 import {TelegramHandler} from "../external/telegram/Telegram";
 

@@ -1,21 +1,20 @@
 import {Direction} from "../constants/Direction";
 import {ExitStrategy} from "./ExitStrategy";
 import {BinanceCommunicator} from "../../external/http/BinanceCommunicator";
+import {Position} from "../Position";
 import {TurtleSignal} from "../TurtleSignal";
 
 
 export class ShortExitStrategy extends ExitStrategy {
-
-  protected getSignal(currentPrice: number, signal: TurtleSignal): boolean {
-    return currentPrice > signal.high10 || signal.value_change > 0
+  isProfit(): boolean {
+    return super.price < super.position.entryPrice
   }
 
   constructor(binance: BinanceCommunicator,
-
-              ticker: string,
-              amount: number,
-              private readonly entryPrice: number) {
-    super(binance, ticker, amount);
+              position: Position,
+              signal: TurtleSignal,
+              price: number) {
+    super(binance, position, signal, price);
   }
 
   getDirection(): Direction {

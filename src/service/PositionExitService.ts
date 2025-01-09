@@ -1,9 +1,10 @@
 import {injectable} from "tsyringe";
-import {PositionReader} from "./PositionReader";
-import {IndicatorReader} from "./IndicatorReader";
-import {CurrentPriceReader} from "./CurrentPriceReader";
-import {ExitStrategyFactory} from "./ExitStrategyFactory";
+import {PositionReader} from "../domain/PositionReader";
+import {IndicatorReader} from "../domain/IndicatorReader";
+import {CurrentPriceReader} from "../domain/CurrentPriceReader";
+import {ExitStrategyFactory} from "../domain/exit/ExitStrategyFactory";
 import {TelegramHandler} from "../external/telegram/Telegram";
+import {LastTradeRepository} from "../external/db/LastTradeRepository";
 
 
 @injectable()
@@ -13,7 +14,8 @@ export class PositionExitService {
               private readonly indicatorReader: IndicatorReader,
               private readonly priceReader: CurrentPriceReader,
               private readonly exitStrategyFactory: ExitStrategyFactory,
-              private readonly telegram: TelegramHandler) {
+              private readonly telegram: TelegramHandler,
+              private readonly lastTradeRepository: LastTradeRepository) {
   }
 
   async run() {
@@ -25,13 +27,15 @@ export class PositionExitService {
         return
       }
       const price = this.priceReader.readPrice(ticker)
-      const strategy = this.exitStrategyFactory.createStrategy(position)
+      const strategy = this.exitStrategyFactory.createStrategy(position, signal, price)
       if (!strategy) {
         continue
       }
-      if (await strategy.run(price, signal)) {
-        await this.telegram.sendInfoMessage(`Exist position: ${JSON.stringify(position)}`)
+      if (!await strategy.run()) {
+        await this.lastTradeRepository.delete(ticker)
+        await this.telegram.sendInfoMessage(`Exist position Loss: ${JSON.stringify(position)}`)
       }
+      await this.telegram.sendInfoMessage(`Exist position Profit: ${JSON.stringify(position)}`)
     }
   }
 
@@ -42,8 +46,15 @@ export class PositionExitService {
       return
     }
     const price = this.priceReader.readPrice(ticker)
+    const signal = await this.indicatorReader.readTurtleSignal(ticker)
+    if (!signal) {
+      return
+    }
     this.indicatorReader.deleteTurtleSignal(ticker)
-    this.exitStrategyFactory.createStrategy(positions[ticker])?.forceClose(price)
-    await this.telegram.sendInfoMessage(`Exist position: ${JSON.stringify(position)}`)
+    if (!this.exitStrategyFactory.createStrategy(positions[ticker], signal, price)?.forceClose()) {
+      await this.lastTradeRepository.delete(ticker)
+      await this.telegram.sendInfoMessage(`Exist position Loss: ${JSON.stringify(position)}`)
+    }
+    await this.telegram.sendInfoMessage(`Exist position Profit: ${JSON.stringify(position)}`)
   }
 }
