@@ -1,13 +1,15 @@
 import {singleton} from "tsyringe";
 import {BinanceCommunicator} from "../external/http/BinanceCommunicator";
-import {LastTradeRepository} from "../external/db/LastTradeRepository";
+import {PyramidFactory} from "../domain/pyramid/PyramidFactory";
+import {TelegramHandler} from "../external/telegram/Telegram";
 
 @singleton()
 export class PyramidService {
 
 
   constructor(private readonly binance: BinanceCommunicator,
-              private readonly lastTradeRepository: LastTradeRepository) {
+              private readonly pyramidStrategyFactory: PyramidFactory,
+              private readonly telegram: TelegramHandler) {
   }
 
   async run() {
@@ -15,12 +17,15 @@ export class PyramidService {
     const prices = await this.binance.fetchPrices()
     for (const ticker in positions) {
       const position = positions[ticker]
-      const lastTrade = await this.lastTradeRepository.select(ticker)
       const price = prices[ticker]
-      if (!position || !lastTrade || !price) {
+      if (!position || !price) {
         continue;
       }
-      
+      const pyramid = await this.pyramidStrategyFactory.create(position, price)
+      if (pyramid) {
+        await pyramid.run()
+        await this.telegram.sendInfoMessage(`Run Pyramiding: ${ticker}`)
+      }
     }
   }
 }

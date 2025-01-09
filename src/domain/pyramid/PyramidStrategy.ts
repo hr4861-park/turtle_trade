@@ -1,4 +1,3 @@
-export abstract class PyramidStrategy {
-
-
+export interface PyramidStrategy {
+  run(): void
 }

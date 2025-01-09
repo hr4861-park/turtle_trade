@@ -5,12 +5,14 @@ import {PositionEntranceService} from "./service/PositionEntranceService";
 import {PositionExitService} from "./service/PositionExitService";
 import {TelegramHandler} from "./external/telegram/Telegram";
 import {IndicatorReader} from "./domain/IndicatorReader";
+import {PyramidService} from "./service/PyramidService";
 
 
 const entranceService = container.resolve(PositionEntranceService)
 const exitService = container.resolve(PositionExitService)
 const telegram = container.resolve(TelegramHandler)
 const indicator = container.resolve(IndicatorReader)
+const pyramid = container.resolve(PyramidService)
 
 const entranceWork = async () => {
   await entranceService.run()
@@ -22,10 +24,16 @@ const existWork = async () => {
   setTimeout(existWork, 100)
 }
 
+const pyramidWork = async () => {
+  await pyramid.run()
+  setTimeout(pyramidWork, 100)
+}
+
 const main = () => {
   indicator.initialize()
   .then(existWork)
   .then(entranceWork)
+  .then(pyramidWork)
   .then(() => telegram.sendInfoMessage('Start App'))
   .then(() => telegram.registerCommand(/\/close (.+)/, async (msg, match) => {
     if (!match) return;
