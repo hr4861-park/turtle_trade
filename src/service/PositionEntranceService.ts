@@ -37,7 +37,7 @@ export class PositionEntranceService {
         continue;
       }
       const trade = await strategy.run(price, this.binance, this.indicator, this.telegram)
-      const bit = trade.direction === Direction.LONG ? 1 : 0
+      const bit = trade.direction === Direction.LONG ? 1 : -1
       await this.lastTradeRepository.upsert(trade.ticker, trade.direction, trade.atr, trade.amount, trade.entryPosition + trade.atr * bit)
     }
   }
