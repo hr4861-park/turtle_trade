@@ -88,6 +88,13 @@ export class BinanceCommunicator {
   }
 
   async setStopLoss(ticker: string, direction: Direction, amount: number, stopLossPrice: number) {
+
+    const openedStopLosses = await this.communicator.fetchOpenOrders(ticker)
+    .then(orders => orders.filter(order => order.type === 'stop_market'));
+    for (const openedStopLoss of openedStopLosses) {
+      await this.communicator.cancelOrder(openedStopLoss.id, ticker)
+    }
+
     return this.communicator.createOrder(ticker, 'STOP_MARKET', direction === Direction.LONG ? Direction.SHORT : Direction.LONG,
         amount, undefined, {
           closePosition: true,
