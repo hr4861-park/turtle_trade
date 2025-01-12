@@ -26,13 +26,11 @@ export class PositionExitService {
         const signal = await this.indicatorReader.readTurtleSignal(ticker)
         const position = positions[ticker]
         if (!position || !signal) {
-          console.log(`no work ticker ${ticker}`)
           continue
         }
         const price = this.priceReader.readPrice(ticker)
         const strategy = this.exitStrategyFactory.createStrategy(position, signal, price)
         if (!strategy) {
-          console.log(`no create exist strategy ${ticker}`)
           continue
         }
         if (!await strategy.run()) {
