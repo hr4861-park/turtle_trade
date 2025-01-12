@@ -6,7 +6,7 @@ import {Position} from "../Position";
 
 export class LongExitStrategy extends ExitStrategy {
   isProfit(): boolean {
-    return super.price > super.position.entryPrice
+    return this.price > this.position.entryPrice
   }
 
   constructor(binance: BinanceCommunicator,
