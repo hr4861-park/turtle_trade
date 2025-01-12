@@ -25,7 +25,6 @@ export class PositionExitService {
 
         const signal = await this.indicatorReader.readTurtleSignal(ticker)
         const position = positions[ticker]
-        console.log(`${JSON.stringify(position)}`)
         if (!position || !signal) {
           console.log(`no work ticker ${ticker}`)
           continue
