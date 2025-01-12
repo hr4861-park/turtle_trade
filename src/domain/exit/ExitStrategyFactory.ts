@@ -14,9 +14,9 @@ export class ExitStrategyFactory {
   }
 
   createStrategy(position: Position, signal: TurtleSignal, price: number): ExitStrategy | undefined {
-    if (position.direction === Direction.LONG && signal.low10 >= price) {
+    if (position.direction === Direction.LONG && (signal.low10 >= price || signal.value_change <= 0)) {
       return new LongExitStrategy(this.binance, position, signal, price);
-    } else if (position.direction === Direction.SHORT && signal.high10 <= price) {
+    } else if (position.direction === Direction.SHORT && (signal.high10 <= price || signal.value_change >= 0)) {
       return new ShortExitStrategy(this.binance, position, signal, price);
     }
     return undefined

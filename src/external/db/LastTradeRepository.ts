@@ -47,4 +47,8 @@ export class LastTradeRepository {
       }
     })
   }
+
+  selectAll() {
+    return this.client.lastTrade.findMany()
+  }
 }

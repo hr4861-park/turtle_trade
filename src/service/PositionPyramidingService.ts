@@ -4,7 +4,7 @@ import {PyramidFactory} from "../domain/pyramid/PyramidFactory";
 import {TelegramHandler} from "../external/telegram/Telegram";
 
 @singleton()
-export class PyramidService {
+export class PositionPyramidingService {
 
 
   constructor(private readonly binance: BinanceCommunicator,

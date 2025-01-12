@@ -5,14 +5,14 @@ import {PositionEntranceService} from "./service/PositionEntranceService";
 import {PositionExitService} from "./service/PositionExitService";
 import {TelegramHandler} from "./external/telegram/Telegram";
 import {IndicatorReader} from "./domain/IndicatorReader";
-import {PyramidService} from "./service/PyramidService";
+import {PositionPyramidingService} from "./service/PositionPyramidingService";
 
 
 const entranceService = container.resolve(PositionEntranceService)
 const exitService = container.resolve(PositionExitService)
 const telegram = container.resolve(TelegramHandler)
 const indicator = container.resolve(IndicatorReader)
-const pyramid = container.resolve(PyramidService)
+const pyramid = container.resolve(PositionPyramidingService)
 
 const entranceWork = async () => {
   await entranceService.run()
