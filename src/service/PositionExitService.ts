@@ -24,7 +24,7 @@ export class PositionExitService {
       const signal = await this.indicatorReader.readTurtleSignal(ticker)
       const position = positions[ticker]
       if (!position || !signal) {
-        return
+        continue
       }
       const price = this.priceReader.readPrice(ticker)
       const strategy = this.exitStrategyFactory.createStrategy(position, signal, price)
@@ -34,8 +34,9 @@ export class PositionExitService {
       if (!await strategy.run()) {
         await this.lastTradeRepository.delete(ticker)
         await this.telegram.sendInfoMessage(`Exist position Loss: ${JSON.stringify(position)}`)
+      } else {
+        await this.telegram.sendInfoMessage(`Exist position Profit: ${JSON.stringify(position)}`)
       }
-      await this.telegram.sendInfoMessage(`Exist position Profit: ${JSON.stringify(position)}`)
     }
   }
 
