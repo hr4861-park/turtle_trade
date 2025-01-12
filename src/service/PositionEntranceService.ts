@@ -22,23 +22,27 @@ export class PositionEntranceService {
     const positions = await this.binance.fetchPositions()
     const prices = await this.binance.fetchPrices()
     for (const ticker of tickers) {
-      const signal = await this.indicator.readTurtleSignal(ticker)
-      const position = positions[ticker]
-      const price = prices[ticker]
-      if (!signal || position) {
-        continue;
+      try {
+        const signal = await this.indicator.readTurtleSignal(ticker)
+        const position = positions[ticker]
+        const price = prices[ticker]
+        if (!signal || position) {
+          continue;
+        }
+        const strategy = this.entranceStrategyFactory.create(ticker, price, signal)
+        if (!strategy) {
+          continue;
+        }
+        const lastTrade = await this.lastTradeRepository.select(ticker)
+        if (lastTrade && lastTrade.direction === strategy.getDirection()) {
+          continue;
+        }
+        const trade = await strategy.run(price, this.binance, this.indicator, this.telegram)
+        const bit = trade.direction === Direction.LONG ? 1 : -1
+        await this.lastTradeRepository.upsert(trade.ticker, trade.direction, trade.atr, trade.amount, trade.entryPosition + trade.atr * bit)
+      } catch (e) {
+        await this.telegram.sendErrorMessage(`Raise error on positionEntrance ${ticker}: ${JSON.stringify(e)}`)
       }
-      const strategy = this.entranceStrategyFactory.create(ticker, price, signal)
-      if (!strategy) {
-        continue;
-      }
-      const lastTrade = await this.lastTradeRepository.select(ticker)
-      if (lastTrade && lastTrade.direction === strategy.getDirection()) {
-        continue;
-      }
-      const trade = await strategy.run(price, this.binance, this.indicator, this.telegram)
-      const bit = trade.direction === Direction.LONG ? 1 : -1
-      await this.lastTradeRepository.upsert(trade.ticker, trade.direction, trade.atr, trade.amount, trade.entryPosition + trade.atr * bit)
     }
   }
 }

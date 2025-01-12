@@ -21,21 +21,29 @@ export class PositionExitService {
   async run() {
     const positions = await this.positionReader.getPositions()
     for (const ticker in positions) {
-      const signal = await this.indicatorReader.readTurtleSignal(ticker)
-      const position = positions[ticker]
-      if (!position || !signal) {
-        continue
-      }
-      const price = this.priceReader.readPrice(ticker)
-      const strategy = this.exitStrategyFactory.createStrategy(position, signal, price)
-      if (!strategy) {
-        continue
-      }
-      if (!await strategy.run()) {
-        await this.lastTradeRepository.delete(ticker)
-        await this.telegram.sendInfoMessage(`Exist position Loss: ${JSON.stringify(position)}`)
-      } else {
-        await this.telegram.sendInfoMessage(`Exist position Profit: ${JSON.stringify(position)}`)
+      try {
+
+        const signal = await this.indicatorReader.readTurtleSignal(ticker)
+        const position = positions[ticker]
+        console.log(`${JSON.stringify(position)}`)
+        if (!position || !signal) {
+          console.log(`no work ticker ${ticker}`)
+          continue
+        }
+        const price = this.priceReader.readPrice(ticker)
+        const strategy = this.exitStrategyFactory.createStrategy(position, signal, price)
+        if (!strategy) {
+          console.log(`no create exist strategy ${ticker}`)
+          continue
+        }
+        if (!await strategy.run()) {
+          await this.lastTradeRepository.delete(ticker)
+          await this.telegram.sendInfoMessage(`Exist position Loss: ${JSON.stringify(position)}`)
+        } else {
+          await this.telegram.sendInfoMessage(`Exist position Profit: ${JSON.stringify(position)}`)
+        }
+      } catch (e) {
+        await this.telegram.sendErrorMessage(`Raise error on PositionExist ${ticker}: ${JSON.stringify(e)}`)
       }
     }
   }
