@@ -52,7 +52,7 @@ export class PositionExitService {
     if (!position) {
       return
     }
-    const price = this.priceReader.readPrice(ticker)
+    const price = (await this.binance.fetchPrices())[ticker]
     const signal = await this.indicatorReader.readTurtleSignal(ticker)
     if (!signal) {
       return
