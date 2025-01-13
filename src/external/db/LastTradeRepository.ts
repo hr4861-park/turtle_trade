@@ -10,13 +10,13 @@ export class LastTradeRepository {
   upsert(ticker: string, direction: Direction, atr: number, size: number, targetPrice: number) {
     return this.client.lastTrade.upsert({
       create: {
-        ticker, size, atr, targetPrice, notified: false, direction
+        ticker: ticker, size: size, atr: atr, targetPrice: targetPrice, notified: false, direction: direction,
       },
       update: {
-        ticker, size, atr, targetPrice, notified: false, direction
+        ticker: ticker, size: size, atr: atr, targetPrice: targetPrice, notified: false, direction: direction
       },
       where: {
-        ticker
+        ticker: ticker
       }
     })
   }
