@@ -19,11 +19,11 @@ export class PositionExitService {
   }
 
   async run() {
+    console.log("Work Exists")
     const positions = await this.positionReader.getPositions()
     const prices = await this.binance.fetchPrices()
     for (const ticker in positions) {
       try {
-
         const signal = await this.indicatorReader.readTurtleSignal(ticker)
         const position = positions[ticker]
         if (!position || !signal) {
