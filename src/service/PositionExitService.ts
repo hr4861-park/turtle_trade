@@ -1,10 +1,10 @@
 import {injectable} from "tsyringe";
 import {PositionReader} from "../domain/PositionReader";
 import {IndicatorReader} from "../domain/IndicatorReader";
-import {CurrentPriceReader} from "../domain/CurrentPriceReader";
 import {ExitStrategyFactory} from "../domain/exit/ExitStrategyFactory";
 import {TelegramHandler} from "../external/telegram/Telegram";
 import {LastTradeRepository} from "../external/db/LastTradeRepository";
+import {BinanceCommunicator} from "../external/http/BinanceCommunicator";
 
 
 @injectable()
@@ -12,14 +12,15 @@ export class PositionExitService {
 
   constructor(private readonly positionReader: PositionReader,
               private readonly indicatorReader: IndicatorReader,
-              private readonly priceReader: CurrentPriceReader,
               private readonly exitStrategyFactory: ExitStrategyFactory,
               private readonly telegram: TelegramHandler,
+              private readonly binance: BinanceCommunicator,
               private readonly lastTradeRepository: LastTradeRepository) {
   }
 
   async run() {
     const positions = await this.positionReader.getPositions()
+    const prices = await this.binance.fetchPrices()
     for (const ticker in positions) {
       try {
 
@@ -28,7 +29,7 @@ export class PositionExitService {
         if (!position || !signal) {
           continue
         }
-        const price = this.priceReader.readPrice(ticker)
+        const price = prices[ticker]
         const strategy = this.exitStrategyFactory.createStrategy(position, signal, price)
         if (!strategy) {
           continue
