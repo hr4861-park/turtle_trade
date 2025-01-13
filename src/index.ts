@@ -31,9 +31,7 @@ const pyramidWork = async () => {
 
 const main = () => {
   indicator.initialize()
-  .then(existWork)
-  .then(entranceWork)
-  .then(pyramidWork)
+  .then(() => Promise.all([entranceWork(), existWork(), pyramidWork()]))
   .then(() => telegram.sendInfoMessage('Start App'))
   .then(() => telegram.registerCommand(/\/close (.+)/, async (msg, match) => {
     if (!match) return;
