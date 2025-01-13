@@ -5,7 +5,10 @@ import {Direction} from "../../domain/constants/Direction";
 @singleton()
 export class LastTradeRepository {
 
-  private readonly client = new PrismaClient()
+  private readonly client = new PrismaClient({
+    log: ['query', 'error'],
+    errorFormat: 'pretty'
+  })
 
   upsert(ticker: string, direction: Direction, atr: number, size: number, targetPrice: number) {
     return this.client.lastTrade.upsert({
