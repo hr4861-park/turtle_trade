@@ -5,6 +5,8 @@ import {Position} from "../Position";
 import {Direction} from "../constants/Direction";
 import {LongPyramidStrategy} from "./LongPyramidStrategy";
 import {ShortPyramidStrategy} from "./ShortPyramidStrategy";
+import {Pyramid} from "../Pyramid";
+import {PyramidStrategy} from "./PyramidStrategy";
 
 @singleton()
 export class PyramidFactory {
@@ -17,7 +19,7 @@ export class PyramidFactory {
     this.lastTradeRepository = lastTradeRepository;
   }
 
-  async create(position: Position, currentPrice: number) {
+  async create(position: Position, currentPrice: number): Promise<PyramidStrategy | null> {
     const lastTrade = await this.lastTradeRepository.select(position.ticker)
     if (!lastTrade) {
       return null

@@ -1,3 +1,3 @@
 export interface PyramidStrategy {
-  run(): void
+  run(): Promise<void>
 }
