@@ -26,7 +26,6 @@ export class ShortPyramidStrategy implements PyramidStrategy {
   }
 
   async run(): Promise<void> {
-    console.log(`${this.ticker}, ${this.direction}, ${this.atr}, ${this.size}, ${this.currentPrice + this.atr}`)
     await this.lastTradeRepository.upsert(this.ticker, this.direction, this.atr, this.size, this.currentPrice - this.atr)
     await this.communicator.enterPosition(this.ticker, this.direction, this.size)
     await this.communicator.setStopLoss(this.ticker, this.direction, this.amount + this.size, this.currentPrice + this.atr * 2)

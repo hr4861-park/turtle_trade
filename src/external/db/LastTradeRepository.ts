@@ -6,9 +6,31 @@ import {Direction} from "../../domain/constants/Direction";
 export class LastTradeRepository {
 
   private readonly client = new PrismaClient({
-    log: ['query', 'error'],
-    errorFormat: 'pretty'
+    log: [
+      {
+        emit: 'event',
+        level: 'query',
+      },
+      {
+        emit: 'stdout',
+        level: 'error',
+      },
+      {
+        emit: 'stdout',
+        level: 'info',
+      },
+      {
+        emit: 'stdout',
+        level: 'warn',
+      },
+    ],
+    errorFormat: 'pretty',
   })
+
+
+  constructor() {
+    this.client.$on('query', e => console.log(`Query: ${e.query}\nParams: ${e.params}\nDuration: ${e.duration}`))
+  }
 
   upsert(ticker: string, direction: Direction, atr: number, size: number, targetPrice: number) {
     return this.client.lastTrade.upsert({
