@@ -22,6 +22,7 @@ export class IndicatorReader {
   }
 
   async initialize() {
+    this.cache.clear()
     const tickers = await this.binance.fetchTickers()
     await Promise.all(tickers.map(ticker => this.readTurtleSignal(ticker)))
   }
