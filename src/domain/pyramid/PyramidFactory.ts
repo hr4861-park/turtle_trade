@@ -21,7 +21,7 @@ export class PyramidFactory {
 
   async create(position: Position, currentPrice: number): Promise<PyramidStrategy | null> {
     const lastTrade = await this.lastTradeRepository.select(position.ticker)
-    if (!lastTrade) {
+    if (!lastTrade || lastTrade.direction !== position.direction) {
       return null
     }
     if (position.direction === Direction.LONG && currentPrice > lastTrade.targetPrice) {
