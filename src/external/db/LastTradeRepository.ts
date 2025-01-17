@@ -29,7 +29,7 @@ export class LastTradeRepository {
 
 
   constructor() {
-    this.client.$on('query', e => console.log(`Query: ${e.query}\nParams: ${e.params}\nDuration: ${e.duration}`))
+    // this.client.$on('query', e => console.log(`Query: ${e.query}\nParams: ${e.params}\nDuration: ${e.duration}`))
   }
 
   upsert(ticker: string, direction: Direction, atr: number, size: number, targetPrice: number) {
