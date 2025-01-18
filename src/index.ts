@@ -6,6 +6,7 @@ import {PositionExitService} from "./service/PositionExitService";
 import {TelegramHandler} from "./external/telegram/Telegram";
 import {IndicatorReader} from "./domain/IndicatorReader";
 import {PositionPyramidingService} from "./service/PositionPyramidingService";
+import {TradeDetectService} from "./service/TradeDetectService";
 
 
 const entranceService = container.resolve(PositionEntranceService)
@@ -13,6 +14,7 @@ const exitService = container.resolve(PositionExitService)
 const telegram = container.resolve(TelegramHandler)
 const indicator = container.resolve(IndicatorReader)
 const pyramid = container.resolve(PositionPyramidingService)
+const tradeDetectService = container.resolve(TradeDetectService)
 
 const entranceWork = async () => {
   await entranceService.run()
@@ -27,6 +29,11 @@ const existWork = async () => {
 const pyramidWork = async () => {
   await pyramid.run()
   setTimeout(pyramidWork, 100)
+}
+
+const detectWork = async () => {
+  await tradeDetectService.run()
+  setImmediate(detectWork)
 }
 
 const main = () => {
@@ -44,8 +51,10 @@ const main = () => {
       await telegram.sendInfoMessage(`Current ${match[1]}'s turtle Signal: ${JSON.stringify(result)}`)
     }
   }))
+  .then(detectWork)
 }
 
 
 console.log("start main")
 main()
+// detectWork()
