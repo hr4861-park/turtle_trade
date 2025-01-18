@@ -9,7 +9,7 @@ import {Direction} from "../../domain/constants/Direction";
 @singleton()
 export class BinanceCommunicator {
 
-  private readonly communicator = new ccxt.binance({
+  private readonly communicator = new ccxt.pro.binance({
     apiKey: process.env.BINANCE_API_KEY,
     secret: process.env.BINANCE_API_SECRET,
     enableRateLimit: true,
@@ -100,6 +100,13 @@ export class BinanceCommunicator {
           closePosition: true,
           stopPrice: stopLossPrice
         })
+  }
+
+  async onStopMarketTrade(callback: (ticker: string, type: string) => Promise<void>) {
+    const trades = await this.communicator.watchMyTrades()
+    for (const trade of trades) {
+      await callback(trade.symbol as string, trade.type as string)
+    }
   }
 }
 
