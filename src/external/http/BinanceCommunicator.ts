@@ -105,6 +105,7 @@ export class BinanceCommunicator {
   async onStopMarketTrade(callback: (ticker: string, type: string) => Promise<void>) {
     const trades = await this.communicator.watchMyTrades()
     for (const trade of trades) {
+      console.log(trade)
       await callback(trade.symbol as string, trade.type as string)
     }
   }
