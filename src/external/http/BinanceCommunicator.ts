@@ -3,7 +3,6 @@ import {Candle} from "../../domain/Candle";
 import dayjs from 'dayjs'
 import {singleton} from "tsyringe";
 import {Position} from "../../domain/Position";
-import {Direction} from "../../domain/constants/Direction";
 
 
 @singleton()
@@ -13,9 +12,6 @@ export class BinanceCommunicator {
     apiKey: process.env.BINANCE_API_KEY,
     secret: process.env.BINANCE_API_SECRET,
     enableRateLimit: true,
-    options: {
-      defaultType: 'future'
-    }
   })
 
   fetchCandles = async (ticker: string) => {
@@ -53,21 +49,24 @@ export class BinanceCommunicator {
       prev[curr.symbol] = {
         ticker: curr.symbol,
         amount: curr.contracts as number,
-        direction: curr.side === 'long' ? Direction.LONG : Direction.SHORT,
         entryPrice: curr.entryPrice as number
       }
       return prev
     }, {})
   }
 
-  closePosition = async (ticker: string, direction: Direction, amount: number): Promise<void> => {
-    await this.communicator.createOrder(ticker, 'market', direction === Direction.LONG ? 'sell' : 'buy', Math.abs(amount))
+  closePosition = async (ticker: string, amount: number): Promise<void> => {
+    await this.communicator.createOrder(ticker, 'market', 'sell', Math.abs(amount))
     const orders = await this.communicator.fetchOpenOrders(ticker)
     await this.communicator.cancelOrders(orders.map(order => order.id), ticker)
   }
 
-  enterPosition = async (ticker: string, position: Direction, amount: number): Promise<void> => {
-    await this.communicator.createOrder(ticker, 'market', position, amount)
+  halfClose = async (position: Position): Promise<void> => {
+    await this.communicator.createOrder(position.ticker, 'market', 'sell', Math.abs(position.amount / 2))
+  }
+
+  enterPosition = async (ticker: string, amount: number): Promise<void> => {
+    await this.communicator.createOrder(ticker, 'market', "buy", amount)
   }
 
   fetchUSDTWallet = async (): Promise<{ total: number; free: number; }> => {
@@ -85,29 +84,6 @@ export class BinanceCommunicator {
           this.communicator.setMarginMode('isolated', ticker)
         ]
     )
-  }
-
-  async setStopLoss(ticker: string, direction: Direction, amount: number, stopLossPrice: number) {
-
-    const openedStopLosses = await this.communicator.fetchOpenOrders(ticker)
-    .then(orders => orders.filter(order => order.type === 'stop_market'));
-    for (const openedStopLoss of openedStopLosses) {
-      await this.communicator.cancelOrder(openedStopLoss.id, ticker)
-    }
-
-    return this.communicator.createOrder(ticker, 'STOP_MARKET', direction === Direction.LONG ? Direction.SHORT : Direction.LONG,
-        amount, undefined, {
-          closePosition: true,
-          stopPrice: stopLossPrice
-        })
-  }
-
-  async onStopMarketTrade(callback: (ticker: string, type: string) => Promise<void>) {
-    const trades = await this.communicator.watchMyTrades()
-    for (const trade of trades) {
-      console.log(trade)
-      await callback(trade.symbol as string, trade.type as string)
-    }
   }
 }
 

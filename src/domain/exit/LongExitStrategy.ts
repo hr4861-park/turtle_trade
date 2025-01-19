@@ -1,4 +1,3 @@
-import {Direction} from "../constants/Direction";
 import {ExitStrategy} from "./ExitStrategy";
 import {BinanceCommunicator} from "../../external/http/BinanceCommunicator";
 import {TurtleSignal} from "../TurtleSignal";
@@ -15,9 +14,4 @@ export class LongExitStrategy extends ExitStrategy {
               price: number) {
     super(binance, position, signal, price);
   }
-
-  getDirection(): Direction {
-    return Direction.LONG
-  }
-
 }

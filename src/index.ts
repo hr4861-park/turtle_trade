@@ -6,7 +6,8 @@ import {PositionExitService} from "./service/PositionExitService";
 import {TelegramHandler} from "./external/telegram/Telegram";
 import {IndicatorReader} from "./domain/IndicatorReader";
 import {PositionPyramidingService} from "./service/PositionPyramidingService";
-import {TradeDetectService} from "./service/TradeDetectService";
+import {HalfCutService} from "./service/HaflCloseService";
+
 
 
 const entranceService = container.resolve(PositionEntranceService)
@@ -14,7 +15,7 @@ const exitService = container.resolve(PositionExitService)
 const telegram = container.resolve(TelegramHandler)
 const indicator = container.resolve(IndicatorReader)
 const pyramid = container.resolve(PositionPyramidingService)
-const tradeDetectService = container.resolve(TradeDetectService)
+const haflClose = container.resolve(HalfCutService)
 
 const entranceWork = async () => {
   await entranceService.run()
@@ -31,19 +32,10 @@ const pyramidWork = async () => {
   setTimeout(pyramidWork, 100)
 }
 
-const detectWork = async () => {
-  await tradeDetectService.run()
-  setImmediate(detectWork)
-}
-
 const main = () => {
   indicator.initialize()
   .then(() => Promise.all([entranceWork(), existWork(), pyramidWork()]))
   .then(() => telegram.sendInfoMessage('Start App'))
-  .then(() => telegram.registerCommand(/\/close (.+)/, async (msg, match) => {
-    if (!match) return;
-    await exitService.forceClose(match[1])
-  }))
   .then(() => telegram.registerCommand(/\/turtle (.+)/, async (msg, match) => {
     if (!match) return;
     const result = await indicator.readTurtleSignal(match[1])
@@ -51,10 +43,9 @@ const main = () => {
       await telegram.sendInfoMessage(`Current ${match[1]}'s turtle Signal: ${JSON.stringify(result)}`)
     }
   }))
-  .then(detectWork)
+  .then(haflClose.run)
 }
 
 
 console.log("start main")
 main()
-// detectWork()

@@ -17,7 +17,6 @@ export class PositionPyramidingService {
     const prices = await this.binance.fetchPrices()
     for (const ticker in positions) {
       try {
-
         const position = positions[ticker]
         const price = prices[ticker]
         if (!position || !price) {

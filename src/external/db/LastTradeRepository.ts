@@ -1,6 +1,5 @@
 import {PrismaClient} from "@prisma/client";
 import {singleton} from "tsyringe";
-import {Direction} from "../../domain/constants/Direction";
 
 @singleton()
 export class LastTradeRepository {
@@ -32,13 +31,13 @@ export class LastTradeRepository {
     // this.client.$on('query', e => console.log(`Query: ${e.query}\nParams: ${e.params}\nDuration: ${e.duration}`))
   }
 
-  upsert(ticker: string, direction: Direction, atr: number, size: number, targetPrice: number) {
+  upsert(ticker: string, atr: number, size: number, targetPrice: number) {
     return this.client.lastTrade.upsert({
       create: {
-        ticker: ticker, size: size, atr: atr, targetPrice: targetPrice, notified: false, direction: direction,
+        ticker: ticker, size: size, atr: atr, targetPrice: targetPrice
       },
       update: {
-        ticker: ticker, size: size, atr: atr, targetPrice: targetPrice, notified: false, direction: direction
+        ticker: ticker, size: size, atr: atr, targetPrice: targetPrice
       },
       where: {
         ticker: ticker
@@ -46,17 +45,7 @@ export class LastTradeRepository {
     })
   }
 
-  notified(ticker: string) {
-    return this.client.lastTrade.update({
-      data: {
-        notified: true
-      },
-      where: {
-        ticker
-      }
-    })
-  }
-
+  
   select(ticker: string) {
     return this.client.lastTrade.findUnique({
       where: {
